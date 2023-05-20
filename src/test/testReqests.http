@@ -1,0 +1,5 @@
+### get Ivan
+GET http://localhost:8080/products/fetch-product?name=Ivan
+
+### get zzz
+GET http://localhost:8080/products/fetch-product?name=zzz
