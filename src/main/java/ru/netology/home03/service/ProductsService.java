@@ -5,7 +5,6 @@ import ru.netology.home03.exceptions.DataNotFoundException;
 import ru.netology.home03.repository.ProductsRepositoryImpl;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductsService {
