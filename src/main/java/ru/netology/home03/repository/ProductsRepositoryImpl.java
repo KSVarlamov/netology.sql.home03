@@ -1,43 +1,27 @@
 package ru.netology.home03.repository;
 
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class ProductsRepositoryImpl implements ProductsRepository {
 
-    private final String productNameRequest = read("findByName.sql");
 
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @PersistenceContext
+    EntityManager manager;
 
-    public ProductsRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    }
-
-    private static String read(String scriptFileName) {
-        try (InputStream is = new ClassPathResource(scriptFileName).getInputStream();
-             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is))) {
-            return bufferedReader.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load SQL file");
-        }
+    public ProductsRepositoryImpl(EntityManager manager) {
+        this.manager = manager;
     }
 
     @Override
-    public List<String> getProductName(String userName) {
-        SqlParameterSource namedParameters = new MapSqlParameterSource("username", userName.toLowerCase());
-        var resp = namedParameterJdbcTemplate.queryForList(productNameRequest, namedParameters);
-        return resp.stream().map(p -> (String) p.get("product_name")).toList();
+    public List getProductName(String userName) {
+        var query = manager.createQuery("select productName from Order o where o.customer.name = :userName");
+        query.setParameter("userName", userName);
+        return query.getResultList();
     }
 }
